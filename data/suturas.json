@@ -1,0 +1,68 @@
+﻿[
+    {
+        "id":  "MED-001",
+        "titulo":  "Medileben Poliglactina 910 Trenzada",
+        "tipo":  "Absorbible Sintética Trenzada",
+        "genero":  "Cirugía General",
+        "calibre":  "USP 2-0 (Caja x12)",
+        "precio":  175,
+        "portada":  "images/poliglactina.svg",
+        "descripcion":  "Sutura absorbible estéril recubierta para aproximación de tejidos blandos (56-70 días).",
+        "created_at":  "2026-11-23T12:25:55.368354+00:00"
+    },
+    {
+        "id":  "MED-002",
+        "titulo":  "Medileben Nylon Monofilamento Dérmico",
+        "tipo":  "No Absorbible Monofilamento",
+        "genero":  "Cirugía Plástica",
+        "calibre":  "USP 4-0 (Caja x12)",
+        "precio":  120,
+        "portada":  "images/nylon.svg",
+        "descripcion":  "Monofilamento de poliamida con aguja reverso cortante para cierre cutáneo estético.",
+        "created_at":  "2026-11-23T12:25:55.368354+00:00"
+    },
+    {
+        "id":  "MED-003",
+        "titulo":  "Medileben Polipropileno Vascular",
+        "tipo":  "No Absorbible Monofilamento",
+        "genero":  "Cirugía Cardiovascular",
+        "calibre":  "USP 5-0 (Caja x12)",
+        "precio":  205,
+        "portada":  "images/polipropileno.svg",
+        "descripcion":  "Doble aguja ahusada cardiovascular con resistencia tensil indefinida.",
+        "created_at":  "2026-11-23T12:25:55.368354+00:00"
+    },
+    {
+        "id":  "MED-004",
+        "titulo":  "Medileben Seda Negra Trenzada Siliconada",
+        "tipo":  "No Absorbible Natural",
+        "genero":  "Cirugía General",
+        "calibre":  "USP 0 (Caja x12)",
+        "precio":  115,
+        "portada":  "images/seda.svg",
+        "descripcion":  "Fibras naturales de seda trenzada con recubrimiento siliconado de paso suave.",
+        "created_at":  "2026-11-23T12:25:55.368354+00:00"
+    },
+    {
+        "id":  "MED-005",
+        "titulo":  "Medileben Catgut Crómico Ginecológico",
+        "tipo":  "Absorbible Natural",
+        "genero":  "Ginecología \u0026 Obstetricia",
+        "calibre":  "USP 1 (Caja x12)",
+        "precio":  145,
+        "portada":  "images/catgut.svg",
+        "descripcion":  "Tratado con sales de cromo para absorción prolongada en histerorrafia y mucosas.",
+        "created_at":  "2026-11-23T12:25:55.368354+00:00"
+    },
+    {
+        "id":  "MED-006",
+        "titulo":  "Medileben Polidioxanona Monofilamento PDS",
+        "tipo":  "Absorbible Sintética Monofilamento",
+        "genero":  "Cirugía General",
+        "calibre":  "USP 1 (Caja x12)",
+        "precio":  235,
+        "portada":  "images/polidioxanona.svg",
+        "descripcion":  "Soporte prolongado de heridas fasciales y aponeurosis hasta por 6 semanas.",
+        "created_at":  "2026-11-23T12:25:55.368354+00:00"
+    }
+]

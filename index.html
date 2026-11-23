@@ -1,0 +1,618 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f97316">
+  <title>MEDILEBEN Bolivia — Catálogo de Suturas e Insumos Quirúrgicos</title>
+
+  <!-- PWA Manifest & Icono -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- Estilos Unificados -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- jQuery 3.7.1 Oficial y DOMPurify 3.1.6 -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- ========================================================================
+       1. PANTALLA DE INICIO DE SESIÓN (#loginScreen)
+       ======================================================================== -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-bg-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-brand">
+        <img src="images/logo-matermed.svg" alt="MEDILEBEN" class="login-logo">
+        <h1 class="login-title">MEDI<span>LEBEN</span></h1>
+        <p class="login-subtitle">Catálogo de Suturas e Insumos Quirúrgicos</p>
+        <small class="login-university">Diseño Web II (SIS-0141) • UPDS La Paz • Ing. M. Cruz Ramos</small>
+      </div>
+
+      <p class="login-section-label">— Acceso rápido (1 clic) —</p>
+
+      <div class="quick-login-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <button type="button" class="quick-btn" data-rol="cliente">
+          <span class="quick-icon">🛒</span>
+          <strong>Vista Cliente</strong>
+          <small>cliente / 123456</small>
+        </button>
+        <button type="button" class="quick-btn" data-rol="admin">
+          <span class="quick-icon">🛡️</span>
+          <strong>Vista Administrador</strong>
+          <small>admin / 123456</small>
+        </button>
+      </div>
+
+      <div class="login-divider"><span>o ingrese con credenciales (Supabase)</span></div>
+
+      <form id="loginForm" class="login-form">
+        <div class="login-field">
+          <label for="loginUser">👤 Usuario</label>
+          <input type="text" id="loginUser" class="login-input"
+                 placeholder="cliente o admin" autocomplete="username">
+        </div>
+        <div class="login-field">
+          <label for="loginPass">🔒 Contraseña</label>
+          <div class="pass-wrapper">
+            <input type="password" id="loginPass" class="login-input"
+                   placeholder="123456" autocomplete="current-password">
+            <button type="button" id="btnTogglePass" class="btn-show-pass" aria-label="Mostrar contraseña">👁️</button>
+          </div>
+        </div>
+        <div id="loginError" class="login-error" style="display:none;"></div>
+        <button type="submit" class="login-btn-submit">
+          <span>Iniciar Sesión</span>
+          <span>→</span>
+        </button>
+      </form>
+
+      <div class="login-creds-hint">
+        💡 <strong>Credenciales en Supabase (<code>public.usuarios_matermed</code>):</strong><br>
+        🛒 Cliente: <code>cliente</code> / <code>123456</code> &nbsp;•&nbsp;
+        🛡️ Admin: <code>admin</code> / <code>123456</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       2. VISTA PRINCIPAL ÚNICA UNIFICADA (#appContent)
+       Cambia únicamente el nombre y rol en el navbar/barra de sesión.
+       El catálogo y todas las funcionalidades están siempre disponibles.
+       ======================================================================== -->
+  <div id="appContent" style="display:none;">
+
+    <!-- Barra Superior de Sesión (Muestra el usuario conectado) -->
+    <div class="session-bar">
+      <div class="container session-bar-inner">
+        <div class="role-badge-current">
+          <span id="roleIcon">👨‍⚕️</span>
+          <span>Conectado como:</span>
+          <strong id="roleCurrentName">Médico / Cliente MEDILEBEN</strong>
+        </div>
+        <div class="session-controls">
+          <span id="estadoRedPC" class="net-status-pill">🟢 En Línea</span>
+          <button type="button" id="btnSimularContraste" class="btn-session-action">👁️ Alto Contraste</button>
+          <button type="button" id="btnLogout" class="btn-session-action btn-logout">🚪 Cerrar Sesión</button>
+        </div>
+      </div>
+      <div class="container" hidden>
+        <p id="reporteA11Y" role="status" aria-live="polite" class="reporte-a11y">Estado: Listo para auditar.</p>
+      </div>
+    </div>
+
+    <!-- Header / Navbar Principal -->
+    <header class="barra-superior">
+      <div class="container header-inner">
+        <a href="#catalogo" class="brand-wrapper">
+          <img src="images/logo-matermed.svg" alt="MEDILEBEN Bolivia Logo Oficial">
+        </a>
+
+        <button type="button" id="burguerBtn" class="btn-burguer" aria-label="Abrir menú">☰</button>
+
+        <nav id="navMenu" class="nav-menu" aria-label="Navegación superior">
+          <a href="#catalogo" class="active">📦 Catálogo</a>
+          <a href="#cascada" hidden>🔬 Cascada</a>
+          <a href="#calculador">🛒 Cotizar / Carrito</a>
+          <a href="#contacto">✉️ Contacto</a>
+          <a href="#reservaXSS" hidden>🏥 Quirófano</a>
+          <a href="#colaQuirurgica" hidden>🩺 Cola Táctil</a>
+          <a href="#bitacora" hidden>📡 Bitácora</a>
+        </nav>
+
+        <div class="header-actions">
+          <span id="navbarRolePill" class="role-pill role-medico">🛒 Médico / Cliente MEDILEBEN</span>
+          <button type="button" id="themeBtn" class="btn-theme">
+            <span id="themeIcon">🌙</span> <span id="themeText">Modo Oscuro</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL FLEXBOX (Abajo en Celular Vertical / Lateral en Horizontal o PC) -->
+    <main class="contenedor-app">
+      <section class="area-contenido">
+
+    <!-- Hero Compacto -->
+    <section id="inicio" class="hero-section hero-medico">
+      <div class="container">
+        <h1>MATER<span>MED</span> Bolivia — Catálogo Quirúrgico Unificado</h1>
+        <p>Distribución especializada de suturas quirúrgicas con filtrado DOM, cascada clínica, cotizador flash, seguridad Anti-XSS y arquitectura PWA Offline-First.</p>
+        <div class="hero-badges">
+          <span class="hero-badge">📦 15 Suturas JSON + Lazy Loading</span>
+          <span class="hero-badge">🛡️ Blindaje Anti-XSS (.text())</span>
+          <span class="hero-badge">⚡ Cotizador Flash 30s</span>
+          <span class="hero-badge">📶 PWA Offline-First</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. CATÁLOGO PRINCIPAL DE SUTURAS (NÚCLEO DEL PROYECTO + CRUD SUPABASE + SEMANAS 1-3) -->
+    <section id="catalogo" class="container">
+      <div class="section-title">
+        <h2>📦 Catálogo de Suturas e Insumos Quirúrgicos (Supabase)</h2>
+        <p>Sincronizado con <code>public.catalogo_medileben</code> • Búsqueda en vivo, filtros y paginación</p>
+      </div>
+
+      <!-- Sub-vista 1: Explorar Catálogo (Búsqueda, Filtros y Tarjetas Paginadas) -->
+      <div id="panelExplorarCatalogo">
+        <div class="catalog-toolbar" style="margin-bottom:14px;">
+          <div class="search-box-wrap" style="margin-bottom:10px;">
+            <input type="text" id="buscarSutura" class="form-control" placeholder="🔍 Buscar sutura Medileben, especialidad o calibre USP...">
+          </div>
+          <div class="filter-bar" id="filterBar" style="margin-bottom:12px;">
+            <button type="button" class="filter-btn active" data-cat="todos" style="min-height:44px;">🌐 Todas</button>
+            <button type="button" class="filter-btn" data-cat="absorbible" style="min-height:44px;">🟣 Absorbibles</button>
+            <button type="button" class="filter-btn" data-cat="no-absorbible" style="min-height:44px;">🟢 No Absorbibles</button>
+            <button type="button" class="filter-btn" data-cat="cardio" style="min-height:44px;">🔵 Cardiovascular</button>
+          </div>
+        </div>
+
+        <div class="catalog-grid catalogo-grid" id="suturasGrid" style="margin-bottom:14px;">
+          <!-- Renderizado dinámico desde public.catalogo_medileben con BEM, Lazy Loading y CRUD -->
+        </div>
+        <div id="paginadorSuturas" style="display:flex; justify-content:center; align-items:center; gap:12px; margin:10px 0;">
+          <button type="button" id="btnPrevSuturas" class="filter-btn" style="min-height:44px;">◀ Anterior</button>
+          <span id="infoPagSuturas" style="font-weight:700; font-size:0.9rem;">Página 1</span>
+          <button type="button" id="btnNextSuturas" class="filter-btn" style="min-height:44px;">Siguiente ▶</button>
+        </div>
+      </div>
+
+      <!-- Sub-vista 2: Aumentar Nueva Sutura al Catálogo en Supabase (Cascada 3 Capas + Validación + Anti-XSS) -->
+      <div id="panelCrearSuturaCatalogo" class="security-box" style="display:none; margin-bottom:16px;">
+        <span class="security-badge">➕ CRUD SUPABASE • CASCADA 3 CAPAS • VALIDACIÓN &amp; ANTI-XSS (.text() + DOMPurify)</span>
+        <h3>➕ Registrar Nueva Sutura en el Catálogo (<code>public.catalogo_medileben</code>)</h3>
+        <p class="cascade-desc">Completa los datos para aumentar una sutura en la base de datos. Al guardarse aparecerá automáticamente en el Catálogo y en el selector del Carrito de Cotización.</p>
+
+        <form id="formNuevaSuturaCat" novalidate>
+          <div class="cascade-grid" style="margin-bottom:10px;">
+            <div class="form-group">
+              <label for="catTitulo">1. Nombre Comercial / Genérico de la Sutura:</label>
+              <input type="text" id="catTitulo" class="form-control" placeholder="Ej: Medileben Poliglactina 910 Trenzada Plus Antibacteriana">
+              <div id="msgCatTitulo" class="campo-msg oculto"></div>
+            </div>
+            <div class="form-group">
+              <label for="catPrecio">2. Precio por Caja en BOB (12 hebras):</label>
+              <input type="number" id="catPrecio" class="form-control" placeholder="Ej: 195" min="1">
+              <div id="msgCatPrecio" class="campo-msg oculto"></div>
+            </div>
+          </div>
+
+          <!-- Clasificación en Cascada de 3 Capas (Tipo -> Especialidad -> Calibre USP) -->
+          <div class="cascade-grid" style="margin-bottom:10px;">
+            <div class="form-group">
+              <label for="catCapa1Tipo">3. Capa 1 — Tipo de Material:</label>
+              <select id="catCapa1Tipo" class="form-control">
+                <option value="">-- Elige Tipo de Material --</option>
+                <option value="Absorbible Sintética Trenzada">Absorbible Sintética Trenzada</option>
+                <option value="Absorbible Sintética Monofilamento">Absorbible Sintética Monofilamento</option>
+                <option value="Absorbible Natural">Absorbible Natural</option>
+                <option value="No Absorbible Monofilamento">No Absorbible Monofilamento</option>
+                <option value="No Absorbible Natural">No Absorbible Natural</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="catCapa2Genero">4. Capa 2 — Especialidad Quirúrgica:</label>
+              <select id="catCapa2Genero" class="form-control" disabled>
+                <option value="">-- Primero elige Tipo --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="catCapa3Calibre">5. Capa 3 — Calibre USP Recomendado:</label>
+              <select id="catCapa3Calibre" class="form-control" disabled>
+                <option value="">-- Primero elige Especialidad --</option>
+              </select>
+            </div>
+          </div>
+          <div id="msgCatCascada" class="campo-msg oculto" style="margin-bottom:10px;"></div>
+
+          <div class="cascade-grid" style="margin-bottom:12px;">
+            <div class="form-group">
+              <label for="catPortada">6. Ilustración SVG del Empaque:</label>
+              <select id="catPortada" class="form-control">
+                <option value="images/poliglactina.svg">🟣 Empaque Poliglactina (Violeta)</option>
+                <option value="images/nylon.svg">🟢 Empaque Nylon (Verde)</option>
+                <option value="images/polipropileno.svg">🔵 Empaque Polipropileno (Azul Cardio)</option>
+                <option value="images/seda.svg">⚫ Empaque Seda Negra</option>
+                <option value="images/catgut.svg">🟡 Empaque Catgut Crómico</option>
+                <option value="images/polidioxanona.svg">🟠 Empaque Polidioxanona (PDS)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="catDescripcion">7. Descripción Clínica (Sanitizada Anti-XSS):</label>
+              <input type="text" id="catDescripcion" class="form-control" placeholder="Ej: Mínima reacción tisular y absorción segura en 60 días.">
+              <div id="msgCatDesc" class="campo-msg oculto"></div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button type="submit" class="btn-card btn-tactil-std" style="max-width:310px;">
+              💾 Guardar Sutura en Catálogo (Supabase)
+            </button>
+            <button type="button" id="btnCancelarCrearCat" class="filter-btn" style="min-height:44px;">
+              ↩️ Volver al Catálogo
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div id="detalleProyecto" class="detalle-dompurify"></div>
+    </section>
+
+    <!-- 2. FILTRO EN CASCADA DE 3 NIVELES (En código, oculto en frontend) -->
+    <section id="cascada" class="container" hidden>
+      <div class="cascade-box">
+        <h3>🔬 Filtro Clínico en Cascada (3 Capas)</h3>
+        <p class="cascade-desc">Seleccione la especialidad quirúrgica y el plano tisular para obtener la recomendación técnica de sutura.</p>
+        <div class="cascade-grid">
+          <div class="form-group">
+            <label for="cascadaEspecialidad">1. Especialidad Quirúrgica</label>
+            <select id="cascadaEspecialidad" class="form-control">
+              <option value="">-- Seleccione Especialidad --</option>
+              <option value="cardio">Cirugía Cardiovascular</option>
+              <option value="plastica">Cirugía Plástica y Reconstructiva</option>
+              <option value="general">Cirugía General / Abdominal</option>
+              <option value="ginecologia">Ginecología y Obstetricia</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cascadaPlano">2. Plano Tisular</label>
+            <select id="cascadaPlano" class="form-control" disabled>
+              <option value="">-- Primero elija especialidad --</option>
+            </select>
+          </div>
+        </div>
+        <div id="resultadoCascada" class="cascade-result" style="display:none;">
+          <strong>3. Sutura Recomendada:</strong> <span id="textoRecomendacion"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. COTIZADOR FLASH (30s) + RESERVA ANTI-XSS -->
+    <section id="seccionCotizadorReserva" class="container">
+      <div class="grid-2col vista-unica">
+
+        <!-- Cotizador / Carrito de Compras Conectado al Catálogo Supabase -->
+        <div id="calculador" class="calc-wrapper">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <div>
+              <span class="security-badge" style="background:#fef3c7;color:#b45309; margin-bottom:4px;">🛒 CARRITO &amp; COTIZADOR DEL CATÁLOGO SUPABASE</span>
+              <h3>🛒 Carrito de Cotización — MEDILEBEN Bolivia</h3>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" id="btnSubTabCarrito" class="filter-btn active" style="min-height:44px;">🛒 1. Armar Cotización</button>
+              <button type="button" id="btnSubTabHistorialCot" class="filter-btn" style="min-height:44px;">🗄️ 2. Cotizaciones en BD (<span id="countCotizacionesSupa">0</span>)</button>
+            </div>
+          </div>
+
+          <!-- Sub-vista 1: Armar Carrito y Validar Cliente -->
+          <div id="panelArmarCarrito">
+            <div class="cascade-grid" style="align-items:end; margin-bottom:12px;">
+              <div class="form-group">
+                <label for="selectSuturaCalc">🗄️ Elegir Producto del Catálogo (Supabase):</label>
+                <select id="selectSuturaCalc" class="form-control">
+                  <option value="175" data-nombre="Medileben Medileben Poliglactina 910 Trenzada Trenzada">Medileben Medileben Poliglactina 910 Trenzada Trenzada — 175 BOB/caja</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="hrs">Cantidad (caja):</label>
+                <div style="display:flex; gap:8px;">
+                  <input type="number" id="hrs" class="form-control" value="1" min="1" style="max-width:110px;">
+                  <button type="button" id="btnAgregarAlCarrito" class="btn-card btn-tactil-std" style="flex:1;">
+                    ➕ Añadir al Carrito
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lista interactiva de ítems en el Carrito -->
+            <div id="listaCarritoCotizacion" class="reservas-list" style="max-height:165px; margin-bottom:12px;">
+              <!-- Renderizado dinámico del carrito -->
+            </div>
+
+            <!-- Datos del Cliente Validados (Nombre, Celular 8 dígitos, Fecha rango 1 mes) -->
+            <div class="cascade-grid" style="margin-bottom:10px;">
+              <div class="form-group">
+                <label for="cotNombre">👤 Nombre del Cliente:</label>
+                <input type="text" id="cotNombre" class="form-control" placeholder="Ej: Dr. Fernando Aguilar">
+                <div id="msgCotNombre" class="campo-msg oculto"></div>
+              </div>
+              <div class="form-group">
+                <label for="cotCelular">📱 Celular (exactamente 8 dígitos):</label>
+                <input type="tel" id="cotCelular" class="form-control" placeholder="Ej: 71234567" maxlength="8">
+                <div id="msgCotCelular" class="campo-msg oculto"></div>
+              </div>
+              <div class="form-group">
+                <label>📅 Fecha de Entrega (Máx. 1 mes desde hoy):</label>
+                <div class="fila-fecha-unificado">
+                  <input type="number" id="cotDia" class="form-control" placeholder="Día" min="1" max="31">
+                  <input type="number" id="cotMes" class="form-control" placeholder="Mes" min="1" max="12">
+                  <input type="number" id="cotAnio" class="form-control" placeholder="Año (2026)" min="2026" max="2027">
+                </div>
+                <div id="msgCotFecha" class="campo-msg oculto"></div>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding-top:8px; border-top:1px solid var(--border-color);">
+              <div>
+                <span style="font-size:0.85rem; color:var(--text-muted);">Última seleccionada: <strong id="nombreProductoCalc">Medileben Poliglactina 910 Trenzada</strong></span>
+                <div class="total-display" style="margin:4px 0;">Total Carrito: <span id="total">180</span> BOB</div>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" id="btnVaciarCarrito" class="btn-tactil" style="background:#fee2e2; color:#dc2626; padding:0 14px;">🗑️ Vaciar</button>
+                <button type="button" id="btnModal" class="btn-card btn-tactil-std" style="width:auto; padding:0 20px;">
+                  ⏱️ Confirmar Cotización (30s)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub-vista 2: Historial CRUD de Cotizaciones Guardadas en Supabase -->
+          <div id="panelHistorialCotizaciones" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+              <p class="cascade-desc" style="margin:0;">Cotizaciones confirmadas y guardadas en tiempo real en <strong>Supabase</strong>:</p>
+              <button type="button" id="btnRefrescarCotSupa" class="filter-btn" style="min-height:44px;">🔄 Actualizar BD</button>
+            </div>
+            <ul id="listaCotizacionesSupabase" class="reservas-list" style="max-height:280px;"></ul>
+          </div>
+        </div>
+
+        <!-- Módulo Anti-XSS + CRUD Quirófano Supabase -->
+        <div id="reservaXSS" class="security-box">
+          <span class="security-badge">🛡️ RESERVA DE QUIRÓFANO + SUPABASE CRUD</span>
+          <h3>🏥 Reserva de Quirófano Segura</h3>
+          <p class="cascade-desc">Validación en tiempo real y guardado en Supabase (<code>public.reservas_quirofano</code>) con sanitización Anti-XSS (<code>.text()</code>).</p>
+
+          <form id="formReserva" style="margin-bottom:14px;" novalidate>
+            <div class="form-group" style="margin-bottom:10px;">
+              <label for="clienteNombre">Nombre del Cirujano / Equipo:</label>
+              <input type="text" id="clienteNombre" class="form-control" placeholder="Ej: Dr. Fernando Aguilar" required>
+              <div id="msgQuirofanoNombre" class="campo-msg oculto"></div>
+            </div>
+            <div class="form-group" style="margin-bottom:10px;">
+              <label for="clienteCelular">Celular de Contacto (exactamente 8 dígitos):</label>
+              <input type="tel" id="clienteCelular" class="form-control" placeholder="Ej: 71234567" maxlength="8" required>
+              <div id="msgQuirofanoCelular" class="campo-msg oculto"></div>
+            </div>
+            <div class="form-group" style="margin-bottom:10px;">
+              <label>Fecha de Reserva (Rango permitido: hoy hasta 1 mes):</label>
+              <div class="fila-fecha-unificado">
+                <input type="number" id="qDia" class="form-control" placeholder="Día (1-31)" min="1" max="31">
+                <input type="number" id="qMes" class="form-control" placeholder="Mes (1-12)" min="1" max="12">
+                <input type="number" id="qAnio" class="form-control" placeholder="Año (2026)" min="2026" max="2027">
+              </div>
+              <div id="msgQuirofanoFecha" class="campo-msg oculto"></div>
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+              <label for="salaSelect">Quirófano / Sala:</label>
+              <select id="salaSelect" class="form-control">
+                <option value="Quirófano Central 1 (20:00 hrs)">Quirófano Central 1 (20:00 hrs)</option>
+                <option value="Quirófano Laparoscopía 2 (21:30 hrs)">Quirófano Laparoscopía 2 (21:30 hrs)</option>
+                <option value="Sala Ambulatoria 3 (08:00 hrs)">Sala Ambulatoria 3 (08:00 hrs)</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="submit" class="btn-card btn-tactil-std" style="flex:1;">🛡️ Registrar Reserva en BD</button>
+              <button type="button" id="btnRefrescarQuirofanoSupa" class="btn-tactil" style="background:var(--primary); color:#fff; padding:0 12px;" title="Recargar reservas desde Supabase">🔄 Actualizar BD</button>
+            </div>
+          </form>
+
+          <ul id="listaReservas" class="reservas-list">
+            <li class="item-reserva"><strong>Dr. Quirúrgico — </strong><span>Quirófano Central 1 (20:00 hrs)</span></li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. COLA QUIRÚRGICA TÁCTIL (OCULTA EN FRONTEND) + BITÁCORA EN VIVO -->
+    <section id="seccionColaBitacora" class="container">
+      <div class="grid-2col vista-unica">
+
+        <!-- Cola Táctil (En código, oculto en frontend) -->
+        <div id="colaQuirurgica" class="worker-card" hidden>
+          <span class="security-badge" style="background:#dcfce7;color:#15803d;">🩺 RESPONSIVIDAD TÁCTIL >= 44px</span>
+          <h3>📋 Cola de Pedido Rápido a Sala</h3>
+          <p class="cascade-desc">Botones con área táctil mínima de 44×44px, separación de 8px y truncado seguro en Flex.</p>
+
+          <div style="display:flex; gap:8px; margin-bottom:12px;">
+            <input type="text" id="inputSutura" class="form-control" placeholder="Ej: 2x Medileben Poliglactina 910 Trenzada 2-0 Sala 1">
+            <button type="button" id="btnPedirSutura" class="btn-tactil" style="background:var(--primary); color:#fff; padding:0 16px;">+ Pedir</button>
+          </div>
+
+          <div id="listaSuturas" class="lista-suturas-cola">
+            <div class="fila-sutura">
+              <span class="titulo-truncado">2x Medileben Poliglactina 910 Trenzada USP 2-0 — Quirófano 1</span>
+              <div class="cola-actions">
+                <button type="button" class="btn-tactil btn-despachar" title="Despachar">✓</button>
+                <button type="button" class="btn-tactil btn-quitar" title="Eliminar">✕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bitácora de Eventos JS -->
+        <div id="bitacora" class="live-stream-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px; flex-wrap:wrap;">
+            <h3>📡 Bitácora de Eventos en Tiempo Real</h3>
+            <button type="button" id="btnLimpiarLog" class="btn-session-action" style="min-height:44px;">Limpiar</button>
+          </div>
+          <p class="cascade-desc">Auditoría en vivo de interacciones DOM, filtros, búsquedas y eventos de seguridad (sanitizado con <code>.text()</code>).</p>
+          <div id="logOutput" class="log-terminal">
+            <div class="log-item">[Sistema] Portal unificado MEDILEBEN iniciado.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. SECCIÓN DE CONTACTO Y ATENCIÓN HOSPITALARIA VALIDADA -->
+    <section id="contacto" class="container" style="margin-bottom:10px;">
+      <div class="security-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+          <div>
+            <span class="security-badge" style="margin-bottom:4px;">✉️ CONTACTO &amp; ATENCIÓN — MEDILEBEN BOLIVIA</span>
+            <h3>✉️ Contacto y Solicitud Directa</h3>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; font-size:0.82rem;">
+            <span class="net-status-pill">📍 La Paz: Av. Saavedra #1890 (Miraflores)</span>
+            <span class="net-status-pill">📱 WhatsApp: +591 73099887</span>
+            <span class="net-status-pill">✉️ ventas@medileben.bo</span>
+          </div>
+        </div>
+        <p class="cascade-desc" style="margin-bottom:10px;">Solicita provisión hospitalaria de suturas quirúrgicas estériles MEDILEBEN. Validamos celular (8 dígitos) y fecha (rango de 1 mes).</p>
+        <form id="contactForm" novalidate>
+          <div class="cascade-grid" style="margin-bottom:10px;">
+            <div class="form-group">
+              <label for="doctorNombre">👤 Nombre Completo / Institución:</label>
+              <input type="text" id="doctorNombre" class="form-control" placeholder="Ej: Dr. Fernando Aguilar" required>
+              <div id="msgNombreDoc" class="campo-msg oculto"></div>
+            </div>
+            <div class="form-group">
+              <label for="doctorCelular">📱 Celular de Contacto (exactamente 8 dígitos):</label>
+              <input type="tel" id="doctorCelular" class="form-control" placeholder="Ej: 71234567" maxlength="8" required>
+              <div id="msgCelularDoc" class="campo-msg oculto"></div>
+            </div>
+          </div>
+          <div class="cascade-grid" style="margin-bottom:10px;">
+            <div class="form-group">
+              <label>📅 Fecha de Atención / Entrega (Máx. 1 mes desde hoy):</label>
+              <div class="fila-fecha-unificado">
+                <input type="number" id="dia" class="form-control" placeholder="Día (1-31)" min="1" max="31">
+                <input type="number" id="mes" class="form-control" placeholder="Mes (1-12)" min="1" max="12">
+                <input type="number" id="anio" class="form-control" placeholder="Año (2026)" min="2026" max="2027">
+              </div>
+              <div id="msgFechaDoc" class="campo-msg oculto"></div>
+            </div>
+            <div class="form-group">
+              <label for="especialidadSelect">🏥 Especialidad Quirúrgica:</label>
+              <select id="especialidadSelect" class="form-control">
+                <option value="Cirugía General y Digestiva">Cirugía General y Digestiva</option>
+                <option value="Cirugía Cardiovascular y Torácica">Cirugía Cardiovascular y Torácica</option>
+                <option value="Cirugía Plástica y Reconstructiva">Cirugía Plástica y Reconstructiva</option>
+                <option value="Ginecología y Obstetricia">Ginecología y Obstetricia</option>
+                <option value="Traumatología y Microcirugía">Traumatología y Microcirugía</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn-card btn-tactil-std" style="max-width:260px;">📨 Enviar Mensaje de Contacto</button>
+        </form>
+        <div id="alertaBox" style="margin-top:8px;"></div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <strong>MEDILEBEN Bolivia</strong> — Catálogo de Suturas e Insumos Quirúrgicos • Diseño Web II (UPDS La Paz)
+      </div>
+    </footer>
+
+      </section>
+
+      <!-- BARRA DOCK FLEXBOX (Catálogo, Cotizar y Contacto) -->
+      <nav class="dock-acciones" aria-label="Menú principal">
+        <button type="button" class="dock-btn" data-scroll="#catalogo">📦 Catálogo</button>
+        <button type="button" class="dock-btn" data-scroll="#calculador">🛒 Cotizar (<span id="badgeCarrito">1</span>)</button>
+        <button type="button" class="dock-btn" data-scroll="#contacto">✉️ Contacto</button>
+        <button type="button" class="dock-btn" data-scroll="#cascada" hidden>🔬 Cascada</button>
+        <button type="button" class="dock-btn" data-scroll="#reservaXSS" hidden>🏥 Quirófano</button>
+        <button type="button" class="dock-btn" data-scroll="#colaQuirurgica" hidden>🩺 Cola</button>
+        <button type="button" class="dock-btn" data-scroll="#bitacora" hidden>📡 Bitácora</button>
+      </nav>
+    </main>
+
+  </div><!-- /#appContent -->
+
+  <!-- Modal Cotización Flash 30s -->
+  <div id="modalCotizacion" class="modal-overlay">
+    <div class="modal-box" style="text-align:center;">
+      <span style="font-size:36px;">⏱️</span>
+      <h3 style="margin:8px 0;">Tarifa Flash Bloqueada</h3>
+      <div id="temporizadorVisual" class="timer-tag">00:30s</div>
+      <div style="text-align:left; background:var(--bg-primary); padding:14px; border-radius:8px; border:1px solid var(--border-color); margin:12px 0; font-size:14px;">
+        <p><strong>Producto:</strong> <span id="modalProdNombre">Medileben Poliglactina 910 Trenzada</span></p>
+        <p><strong>Cantidad:</strong> <span id="modalCantidad">1</span> caja(s)</p>
+        <p><strong>Total:</strong> <span id="modalMonto" style="color:var(--accent); font-weight:800;">175 BOB</span></p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button type="button" id="confirmOrderBtn" class="btn-card btn-tactil-std" style="background:var(--success); flex:1;">✅ Confirmar Pedido</button>
+        <button type="button" id="cancelModalBtn" class="btn-card btn-tactil-std" style="background:#64748b; flex:1;">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Imagen Ampliada y Ficha Técnica Completa de Sutura -->
+  <div id="modalDetalleSutura" class="modal-overlay">
+    <div class="modal-box" style="max-width:520px; text-align:left;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+        <span id="zoomTagSutura" class="card-tag tag-absorbible" style="margin:0;">Sutura Quirúrgica</span>
+        <button type="button" id="btnCerrarZoomSutura" class="btn-tactil" style="background:#fee2e2; color:#dc2626; min-width:38px; min-height:38px;">✕</button>
+      </div>
+
+      <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:12px; padding:16px; text-align:center; margin-bottom:12px;">
+        <img id="zoomImgSutura" src="images/poliglactina.svg" alt="Vista ampliada de sutura" style="width:100%; max-width:360px; height:200px; object-fit:contain; display:inline-block;">
+      </div>
+
+      <h3 id="zoomTituloSutura" style="font-size:1.2rem; margin-bottom:6px;">Medileben Medileben Poliglactina 910 Trenzada Trenzada</h3>
+
+      <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:10px; padding:12px; font-size:0.88rem; margin-bottom:12px; line-height:1.6;">
+        <p><strong>🏷️ Categoría / Línea:</strong> <span id="zoomGeneroSutura">Cirugía General</span></p>
+        <p><strong>📦 Presentación / Formato:</strong> <span id="zoomCalibreSutura">USP 2-0</span></p>
+        <p><strong>💰 Precio Unitario:</strong> <strong id="zoomPrecioSutura" style="color:var(--accent);">175 BOB</strong></p>
+        <p style="margin-top:6px;"><strong>📋 Descripción del Producto:</strong> <span id="zoomDescSutura"></span></p>
+      </div>
+
+      <div style="margin-bottom:14px; padding:10px 12px; border-radius:8px; background:rgba(2,132,199,0.1); border:1px solid rgba(2,132,199,0.3); font-size:0.86rem;">
+        🔗 <strong>Información y Ficha Oficial del Producto:</strong><br>
+        <a id="zoomLinkInfoSutura" href="https://es.wikipedia.org/wiki/Hilo_de_sutura" target="_blank" rel="noopener noreferrer" style="color:var(--primary); font-weight:700; text-decoration:underline; word-break:break-all;">
+          Ver información completa y detalles del producto ↗
+        </a>
+      </div>
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button type="button" id="btnZoomAgregarCarrito" class="btn-card btn-tactil-std" style="flex:1;">
+          🛒 Agregar a Cotización
+        </button>
+        <button type="button" id="btnCerrarZoomSutura2" class="filter-btn" style="min-height:44px;">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Flotante -->
+  <div id="toastAlert" class="toast-alert"></div>
+
+</body>
+</html>
+
+
